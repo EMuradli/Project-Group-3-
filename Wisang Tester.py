@@ -1,5 +1,6 @@
 import re
 from fractions import Fraction as frac
+
 elementList = []
 elementMatrix = []
 print("please input your reactants, this is case sensitive")
@@ -47,10 +48,8 @@ def compoundDecipher(compound, index, side):
             segment = re.split('\)([0-9]*)', segment)
             multiplier = int(segment[1])
             segment = segment[0][1:]
-            # print(segment, multiplier)
         else:
             multiplier = 1
-            # print(segment)
         findElements(segment, index, multiplier, side)
 
 
@@ -61,64 +60,56 @@ for i in range(len(products)):
 
 tempMatrix = elementMatrix
 A = [list(x) for x in zip(*tempMatrix)]
-# print(A)
 b = ([0] * len(elementList))
 c = list(b)
-# print(elementMatrix)
-# print(elementList)
-# print(A)
-# print(b)
-# print(c)
-
-# sol = A + [c]
-#
-# print(sol)
-
-def gaussian_elimination(A, c):
-
-    n = len(A)
-
-    Ac = [A[i] + [c[i]] for i in range(n)]
-    print(Ac)
-    for i in range(n):
-        # Find row with largest pivot
-        max_row = i
-        for j in range(i + 1, n):
-            if abs(Ac[j][i]) > abs(Ac[max_row][i]):
-                max_row = j
-        # Swap current row with row containing largest pivot
-        Ac[i], Ac[max_row] = Ac[max_row], Ac[i]
-        # Eliminate entries below pivot
-        for j in range(i + 1, n):
-            factor = Ac[j][i] / Ac[i][i]
-            for k in range(i + 1, n + 1):
-                Ac[j][k] -= factor * Ac[i][k]
-            Ac[j][i] = 0
-
-    # Back substitution phase
-    x = [0] * n
-    for i in range(n - 1, -1, -1):
-        x[i] = Ac[i][n]
-        for j in range(i + 1, n):
-            x[i] -= Ac[i][j] * x[j]
-        x[i] /= Ac[i][i]
-
-    # Turning decimals into fractions if needed
-    sol = {}
-    for k in range(len(x)):
-        xStr = str(x[k])
-        xStrFrac = frac(xStr).limit_denominator()
-        sol[f"x{k+1}"] = str(xStrFrac)
-
-    return sol
-
-sol = gaussian_elimination(A, c)
 
 
-print(A)
-print(b)
-print(elementList)
-print(elementMatrix)
-print(len(elementMatrix))
-print(len(elementList))
-print(sol)
+def pivot_row(A, k):
+    i_max = k
+    for i in range(k + 1, len(A)):
+        if abs(A[i][k]) > abs(A[i - 1][k]):
+            i_max = i
+    return i_max
+
+
+def forward_elimination(A):
+    m, n = len(A), len(A[0])
+    for k in range(min(m, n)):
+        i_max = pivot_row(A, k)
+        if A[i_max][k] == 0:
+            break
+        A[k], A[i_max] = A[i_max], A[k]  # Operation 1: swap
+        for i in range(k + 1, m):
+            c = A[i][k] / A[k][k]  # Operation 3: linear
+            for j in range(k + 1, n):
+                A[i][j] = A[i][j] - c * A[k][j]
+            A[i][k] = 0
+
+
+def backward_substitution(A):
+    m, n = len(A), len(A[0])
+    for k in range(min(m, n) - 1, 0, -1):  # [min(m, n), 1]
+        if A[k][k] == 0:
+            continue
+        for i in range(k - 1, -1, -1):  # [k - 1, 0]
+            c = A[i][k] / A[k][k]
+            for j in range(i, n):
+                A[i][j] = A[i][j] - c * A[k][j]  # Operation 3: linear
+    for i in range(min(m, n)):
+        if A[i][i] == 0:
+            continue
+        for j in range(n - 1, i - 1, -1):  # [n - 1, i]
+            A[i][j] = A[i][j] / A[i][i]  # Operation 2: scale
+
+
+def gaussian_elimination():
+    forward_elimination(A)
+    backward_substitution(A)
+    for r in A:
+        for s in range(len(r)):
+            r[s] = str(frac(str(r[s])).limit_denominator())
+        print(r)
+
+
+if __name__ == "__main__":
+    gaussian_elimination()
