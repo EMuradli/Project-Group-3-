@@ -9,7 +9,7 @@ import chemparse as chem
 
 MAX_LEN = 200
 
-def count_common_elements_nested_loops(l1, l2):
+def count_chemcode(l1, l2):
     common_elements = []
     count = 0
     for v in l1:
@@ -183,37 +183,35 @@ runtime1=end1-start1
 print("elapsed Time: {:.16f} seconds".format(runtime1))
 if __name__ == "__main__":
 
-    # Initialise results containers
-    lengths_nested = []
-    times_nested = []
-    lengths_comp = []
-    times_comp = []
-    lengths_hash_table = []
-    times_hash_table = []
-    lengths_sets = []
-    times_sets = []
-
-    for length in range(0, MAX_LEN, 10):
-        # Generate random lists
-        l1 = [random.randint(0, 99) for _ in range(length)]
-        l2 = [random.randint(0, 99) for _ in range(length)]
-
-        # Time execution for nested lists version
-        start = time.perf_counter()
-        count_common_elements_nested_loops(l1, l2)
-        end = time.perf_counter()
-
-        # Store results
-        lengths_nested.append(length)
-        times_nested.append(end - start)
-
-    # Plot results
-    plt.style.use("dark_background")
-    plt.figure().canvas.manager.set_window_title("Common List Elements Algorithm - Time Complexity")
-    plt.xlabel("List Length")
-    plt.ylabel("Execution Time (s)")
-    plt.plot(lengths_nested, times_nested, label="count_common_elements_nested_loops()")
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
+    graphPrompt = input('Plot time complexity graph?\nYes (1), No (2) ')
+    end1 = time.time()
+    runtime1 = end1 - start1
+    print("Elapsed time: {:.16f} seconds".format(runtime1))
+    if graphPrompt == '1':
+        lengths_nested = []
+        times_nested = []
+        lengths_comp = []
+        times_comp = []
+        lengths_hash_table = []
+        times_hash_table = []
+        lengths_sets = []
+        times_sets = []
+        for length in range(0, MAX_LEN, 10):
+            l1 = [random.randint(0, 99) for _ in range(length)]
+            l2 = [random.randint(0, 99) for _ in range(length)]
+            start = time.perf_counter()
+            count_chemcode(l1, l2)
+            end = time.perf_counter()
+            lengths_nested.append(length)
+            times_nested.append(end - start)
+        # Plot results
+        plt.style.use("dark_background")
+        plt.figure().canvas.manager.set_window_title("Common List Elements Algorithm - Time Complexity")
+        plt.xlabel("List Length")
+        plt.ylabel("Execution Time (s)")
+        plt.plot(lengths_nested, times_nested, label="count_common_elements_nested_loops()")
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+    else:
+        pass
